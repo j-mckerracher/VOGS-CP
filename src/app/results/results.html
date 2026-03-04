@@ -1,0 +1,97 @@
+<section class="section-full" id="results">
+  <div class="inner">
+    <div class="section-label">By the Numbers</div>
+    <h2>Outperforming the<br><span>State of the Art</span></h2>
+    <p class="lead">Measured on the Semantic-OPV2V dataset — a large-scale collaborative driving simulation with 2–7 vehicles per scene. All figures sourced directly from the published paper.</p>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <span class="stat-num">+8.42</span>
+        <span class="stat-label">mIoU improvement<br>over single-car baseline</span>
+        <p class="stat-note">Going from one car to collaborative Gaussian sharing adds over 8 points of semantic accuracy.</p>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">+3.28</span>
+        <span class="stat-label">mIoU improvement<br>over best prior method (CoHFF)</span>
+        <p class="stat-note">Outperforms the previous collaborative SOP champion despite requiring no depth supervision or multi-stage training.</p>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">+22.41</span>
+        <span class="stat-label">IoU improvement<br>over CoHFF collaborative</span>
+        <p class="stat-note">A massive geometric accuracy leap — 72.87 vs. 50.46 IoU — driven by explicit 3D free-space modeling.</p>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">34.6%</span>
+        <span class="stat-label">communication budget<br>still beats CoHFF in mIoU</span>
+        <p class="stat-note">Using only 0.27 MB vs. CoHFF's 0.78 MB, the reduced-Gaussian variant still achieves 36.02 mIoU — better than CoHFF's 34.16.</p>
+      </div>
+    </div>
+
+    <div class="table-wrap" appReveal>
+      <div class="section-label">Full Comparison — Semantic-OPV2V Dataset</div>
+      <table class="compare-table">
+        <thead>
+        <tr>
+          <th>Method</th>
+          <th>Setting</th>
+          <th>IoU (%)</th>
+          <th>mIoU (%)</th>
+          <th>Depth Supervision</th>
+          <th>Training</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td><span class="method-name">CoHFF</span></td>
+          <td class="setting-cell">Single Agent</td>
+          <td><span class="val-num">38.52</span></td>
+          <td><span class="val-num">24.81</span></td>
+          <td class="required-cell">Required</td>
+          <td class="training-cell">Multi-stage</td>
+        </tr>
+        <tr>
+          <td><span class="method-name">GSFormer (Baseline)</span></td>
+          <td class="setting-cell">Single Agent</td>
+          <td><span class="val-num">67.76</span></td>
+          <td><span class="val-num">29.20</span></td>
+          <td class="not-required-cell">Not Required</td>
+          <td class="training-cell">Single-stage</td>
+        </tr>
+        <tr>
+          <td><span class="method-name">CoHFF</span></td>
+          <td class="setting-cell">Collaborative</td>
+          <td><span class="val-num">50.46</span></td>
+          <td><span class="val-num">34.16</span></td>
+          <td class="required-cell">Required</td>
+          <td class="training-cell">Multi-stage</td>
+        </tr>
+        <tr>
+          <td><span class="method-name">VOGS-CP (Zero-Shot)</span></td>
+          <td class="setting-cell">Collaborative</td>
+          <td><span class="val-num">67.88</span></td>
+          <td><span class="val-num">30.54</span></td>
+          <td class="not-required-cell">Not Required</td>
+          <td class="training-cell">Single-stage</td>
+        </tr>
+        <tr>
+          <td><span class="method-name">VOGS-CP (Naive Fusion)</span></td>
+          <td class="setting-cell">Collaborative</td>
+          <td><span class="val-num">70.10</span></td>
+          <td><span class="val-num">36.02</span></td>
+          <td class="not-required-cell">Not Required</td>
+          <td class="training-cell">Single-stage</td>
+        </tr>
+        <tr class="our-row">
+          <td><span class="method-name">VOGS-CP (Learned Fusion)</span> <span class="badge-best">Best</span></td>
+          <td class="setting-cell">Collaborative</td>
+          <td><span class="val-num best">72.87</span></td>
+          <td><span class="val-num best">37.44</span></td>
+          <td class="not-required-cell">Not Required</td>
+          <td class="training-cell">Single-stage</td>
+        </tr>
+        </tbody>
+      </table>
+      <p class="table-source">Source: Table 1, Chen et al. (2025). AAAI 2026. All values from paper-reported experiments on Semantic-OPV2V.</p>
+    </div>
+  </div>
+</section>

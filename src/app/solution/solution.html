@@ -1,0 +1,70 @@
+<section class="section-full" id="solution">
+  <div class="inner">
+    <div class="viz-header" appReveal>
+      <div class="section-label">The Breakthrough</div>
+      <h2>Smarter Messages,<br><span>Better Results</span></h2>
+      <p class="lead center-lead">Instead of sending a massive wall of identical data points, VOGS-CP sends a small set of intelligent 3D shapes — called <strong class="gold-text">Gaussian primitives</strong> — each one tuned to describe exactly what it represents.</p>
+    </div>
+
+    <div class="viz-toggle" appReveal>
+      <button class="toggle-btn" [class.active]="mode() === 'gaussian'" (click)="switchMode('gaussian')">Our Method: Gaussian Splatting</button>
+      <button class="toggle-btn" [class.active]="mode() === 'voxel'" (click)="switchMode('voxel')">Traditional: Dense Voxels</button>
+    </div>
+
+    <div class="three-container" appReveal>
+      <canvas #threeCanvas></canvas>
+    </div>
+
+    <div class="viz-info-bar">
+      <div class="viz-stat">
+        <span class="viz-stat-num">{{ infoShapes() }}</span>
+        <span class="viz-stat-label">Semantic Shapes</span>
+      </div>
+      <div class="viz-divider"></div>
+      <div class="viz-stat">
+        <span class="viz-stat-num">{{ infoComm() }}</span>
+        <span class="viz-stat-label">Data Encoding</span>
+      </div>
+      <div class="viz-divider"></div>
+      <div class="viz-stat">
+        <span class="viz-stat-num">{{ infoAlign() }}</span>
+        <span class="viz-stat-label">Cross-Car Alignment</span>
+      </div>
+      <div class="viz-divider"></div>
+      <div class="viz-stat">
+        <span class="viz-stat-num">{{ infoDepth() }}</span>
+        <span class="viz-stat-label">Depth Supervision Needed</span>
+      </div>
+    </div>
+
+    <div class="legend" [style.opacity]="legendOpacity()">
+      <div class="legend-item"><div class="legend-dot" style="background:#E67E22"></div>Vehicles</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7F8C8D"></div>Road Surface</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#27AE60"></div>Vegetation</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#8E6B3E"></div>Buildings</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#D4C5A9"></div>Sidewalk</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#E74C3C"></div>Traffic Elements</div>
+    </div>
+
+    <div class="steps-row" appReveal>
+      <div class="step-card">
+        <span class="step-num">01</span>
+        <div class="step-icon">📷</div>
+        <h4>Cameras See the Scene</h4>
+        <p>Each car's cameras capture the surrounding environment from multiple angles, building a rich picture of nearby objects using only standard cameras — no expensive LiDAR required.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">02</span>
+        <div class="step-icon">✦</div>
+        <h4>Scene Becomes Gaussians</h4>
+        <p>The AI converts what each camera sees into a compact set of 3D Gaussian shapes — smart ellipsoids that encode color, position, size, orientation, and semantic meaning in one tidy package.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-num">03</span>
+        <div class="step-icon">🔗</div>
+        <h4>Cars Share &amp; Fuse</h4>
+        <p>Each car transmits only the Gaussians relevant to its neighbors' view. A fusion module then merges everyone's shapes, removing duplicates and resolving conflicts to build a complete shared picture.</p>
+      </div>
+    </div>
+  </div>
+</section>

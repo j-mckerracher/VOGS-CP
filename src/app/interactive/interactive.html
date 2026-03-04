@@ -1,0 +1,77 @@
+<section id="interactive">
+  <div class="section-label">Interactive Demo</div>
+  <h2>Turn the <span>Dials</span> Yourself</h2>
+  <p class="lead">All numbers below come directly from experiments in the published research paper. Adjust the sliders to see how each parameter affects real performance.</p>
+
+  <div class="sliders-grid">
+
+    <!-- Slider 1: Collaboration Level -->
+    <div class="slider-card" appReveal>
+      <h3>Collaboration Level</h3>
+      <p>How much should cars share? Drag from a single car working alone to the full learned fusion system where all cars cooperate intelligently.</p>
+      <div class="step-slider-wrap">
+        <div class="step-labels">
+          @for (active of collabLabels(); track $index) {
+            <span class="step-label" [class.active]="active">
+              @switch ($index) {
+                @case (0) { Single Car }
+                @case (1) { Zero-Shot }
+                @case (2) { Naive Share }
+                @case (3) { Smart Fusion }
+              }
+            </span>
+          }
+        </div>
+        <input type="range" id="collab-slider" min="0" max="3" step="1" [value]="collabValue()" (input)="onCollabChange($event)">
+      </div>
+      <div class="chart-area">
+        <canvas #collabChart></canvas>
+      </div>
+      <div class="result-display">
+        <div class="result-pill">
+          <span class="result-pill-num">{{ collabMiou() }}</span>
+          <span class="result-pill-label">mIoU Score (%)</span>
+        </div>
+        <div class="result-pill">
+          <span class="result-pill-num">{{ collabIou() }}</span>
+          <span class="result-pill-label">IoU Score (%)</span>
+        </div>
+        <div class="result-pill vs-pill">
+          <span class="result-pill-num vs-num" [style.color]="collabVsColor()">{{ collabVs() }}</span>
+          <span class="result-pill-label">vs. CoHFF Collab</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slider 2: Gaussian Count -->
+    <div class="slider-card" appReveal>
+      <h3>Number of Gaussians</h3>
+      <p>More Gaussians = finer detail, but larger data packets. Slide to find the sweet spot between accuracy and the bandwidth used to share information between cars.</p>
+      <div class="step-slider-wrap">
+        <div class="gauss-labels">
+          <span class="gauss-label">6,400 Gaussians</span>
+          <span class="gauss-label">25,600 Gaussians</span>
+        </div>
+        <input type="range" id="gauss-slider" min="0" max="100" value="0" (input)="onGaussChange($event)">
+      </div>
+      <div class="chart-area">
+        <canvas #gaussChart></canvas>
+      </div>
+      <div class="result-display">
+        <div class="result-pill">
+          <span class="result-pill-num">{{ gaussMiou() }}</span>
+          <span class="result-pill-label">mIoU Score (%)</span>
+        </div>
+        <div class="result-pill">
+          <span class="result-pill-num">{{ gaussComm() }}</span>
+          <span class="result-pill-label">Data Sent (MB)</span>
+        </div>
+        <div class="result-pill green-pill">
+          <span class="result-pill-num" [style.color]="gaussPctColor()">{{ gaussPct() }}</span>
+          <span class="result-pill-label">of CoHFF Bandwidth</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
