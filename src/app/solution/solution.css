@@ -53,6 +53,12 @@
   background: var(--surface);
   border: 1px solid rgba(207,185,145,0.15);
   overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.7s;
+}
+
+.three-container.visible {
+  opacity: 1;
 }
 
 canvas {

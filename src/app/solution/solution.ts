@@ -21,6 +21,7 @@ export class SolutionComponent implements OnDestroy {
   readonly threeCanvas = viewChild<ElementRef<HTMLCanvasElement>>('threeCanvas');
   readonly mode = signal<'gaussian' | 'voxel'>('gaussian');
   readonly webglFailed = signal(false);
+  readonly threeReady = signal(false);
 
   readonly infoShapes = signal('~50');
   readonly infoComm = signal('Smart');
@@ -51,24 +52,8 @@ export class SolutionComponent implements OnDestroy {
         console.warn('[VOGS-CP] Canvas element not found, skipping Three.js init');
         return;
       }
-      const parentWidth = canvas.parentElement?.offsetWidth ?? 0;
-      if (parentWidth > 0) {
-        this.initThree(canvas);
-      } else {
-        // Container has no width yet — wait for ResizeObserver to fire
-        console.warn('[VOGS-CP] Container width is 0, deferring Three.js init to ResizeObserver');
-        if (canvas.parentElement && typeof ResizeObserver !== 'undefined') {
-          const initObserver = new ResizeObserver((entries) => {
-            const width = entries[0]?.contentRect.width ?? 0;
-            if (width > 0) {
-              initObserver.disconnect();
-              console.log('[VOGS-CP] ResizeObserver triggered init, width =', width);
-              this.initThree(canvas);
-            }
-          });
-          initObserver.observe(canvas.parentElement);
-        }
-      }
+      // Always attempt init — resize handler will fix dimensions later
+      this.initThree(canvas);
     });
   }
 
@@ -107,12 +92,41 @@ export class SolutionComponent implements OnDestroy {
 
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: false,
+        powerPreference: 'default',
+        failIfMajorPerformanceCaveat: false,
+      });
     } catch (e) {
-      console.error('[VOGS-CP] THREE.WebGLRenderer creation failed:', e);
-      this.webglFailed.set(true);
-      return;
+      console.error('[VOGS-CP] THREE.WebGLRenderer creation failed, retrying without antialias:', e);
+      try {
+        renderer = new THREE.WebGLRenderer({
+          canvas,
+          antialias: false,
+          alpha: false,
+          powerPreference: 'low-power',
+          failIfMajorPerformanceCaveat: false,
+        });
+      } catch (e2) {
+        console.error('[VOGS-CP] THREE.WebGLRenderer creation failed completely:', e2);
+        this.webglFailed.set(true);
+        return;
+      }
     }
+
+    // Handle WebGL context loss gracefully
+    canvas.addEventListener('webglcontextlost', (event) => {
+      event.preventDefault();
+      console.warn('[VOGS-CP] WebGL context lost');
+      if (this.animId) cancelAnimationFrame(this.animId);
+    });
+    canvas.addEventListener('webglcontextrestored', () => {
+      console.log('[VOGS-CP] WebGL context restored');
+      this.initThree(canvas);
+    });
+
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setClearColor(0x141414, 1);
     renderer.shadowMap.enabled = false;
@@ -234,7 +248,6 @@ export class SolutionComponent implements OnDestroy {
     const resize = () => {
       const w = canvas.parentElement?.offsetWidth || 900;
       const h = w * (9 / 16);
-      console.log('[VOGS-CP] resize: w =', w, 'h =', h);
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
@@ -276,5 +289,8 @@ export class SolutionComponent implements OnDestroy {
       renderer.render(scene, camera);
     };
     animate();
+
+    // Signal that Three.js is ready — triggers container fade-in
+    this.threeReady.set(true);
   }
 }

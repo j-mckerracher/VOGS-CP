@@ -11,7 +11,7 @@
       <button class="toggle-btn" [class.active]="mode() === 'voxel'" (click)="switchMode('voxel')">Traditional: Dense Voxels</button>
     </div>
 
-    <div class="three-container" appReveal>
+    <div class="three-container" [class.visible]="threeReady() || webglFailed()">
       @if (!webglFailed()) {
         <canvas #threeCanvas></canvas>
       } @else {
