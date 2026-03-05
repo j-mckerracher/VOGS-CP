@@ -170,7 +170,7 @@ export class InteractiveComponent implements OnDestroy {
 
       const grd = ctx.createLinearGradient(x, y, x, H - 20);
       grd.addColorStop(0, colors[i]);
-      grd.addColorStop(1, colors[i] + '55');
+      grd.addColorStop(1, colors[i].slice(0, 7) + '55');
       ctx.fillStyle = grd;
       ctx.fillRect(x, y, barW, barH);
 

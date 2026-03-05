@@ -20,6 +20,7 @@ import { RevealDirective } from '../directives/reveal.directive';
 export class SolutionComponent implements OnDestroy {
   readonly threeCanvas = viewChild<ElementRef<HTMLCanvasElement>>('threeCanvas');
   readonly mode = signal<'gaussian' | 'voxel'>('gaussian');
+  readonly webglFailed = signal(false);
 
   readonly infoShapes = signal('~50');
   readonly infoComm = signal('Smart');
@@ -109,6 +110,7 @@ export class SolutionComponent implements OnDestroy {
       renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     } catch (e) {
       console.error('[VOGS-CP] THREE.WebGLRenderer creation failed:', e);
+      this.webglFailed.set(true);
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));

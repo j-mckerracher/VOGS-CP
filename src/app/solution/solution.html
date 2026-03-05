@@ -12,7 +12,39 @@
     </div>
 
     <div class="three-container" appReveal>
-      <canvas #threeCanvas></canvas>
+      @if (!webglFailed()) {
+        <canvas #threeCanvas></canvas>
+      } @else {
+        <div class="webgl-fallback">
+          <div class="fb-scene">
+            @if (mode() === 'gaussian') {
+              <div class="fb-blob fb-road"></div>
+              <div class="fb-blob fb-sidewalk-l"></div>
+              <div class="fb-blob fb-sidewalk-r"></div>
+              <div class="fb-blob fb-building-tl"></div>
+              <div class="fb-blob fb-building-tr"></div>
+              <div class="fb-blob fb-building-bl"></div>
+              <div class="fb-blob fb-building-br"></div>
+              <div class="fb-blob fb-vehicle-1"></div>
+              <div class="fb-blob fb-vehicle-2"></div>
+              <div class="fb-blob fb-vehicle-3"></div>
+              <div class="fb-blob fb-tree-1"></div>
+              <div class="fb-blob fb-tree-2"></div>
+              <div class="fb-blob fb-tree-3"></div>
+            } @else {
+              <div class="fb-voxels"></div>
+            }
+          </div>
+          <div class="fb-caption">
+            @if (mode() === 'gaussian') {
+              ~50 semantic Gaussian primitives — each encodes position, shape &amp; semantic class
+            } @else {
+              ~1,000+ uniform voxel cells — fixed-resolution grid covering the full scene volume
+            }
+          </div>
+          <div class="webgl-note">⚠ Interactive 3D requires WebGL — enable hardware acceleration in your browser settings to see the live demo</div>
+        </div>
+      }
     </div>
 
     <div class="viz-info-bar">
