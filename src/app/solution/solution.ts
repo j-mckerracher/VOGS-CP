@@ -46,13 +46,18 @@ export class SolutionComponent implements OnDestroy {
   constructor() {
     afterNextRender(() => {
       const canvas = this.threeCanvas()?.nativeElement;
-      console.log('[VOGS-CP] afterNextRender: canvas =', canvas,
-        'parentWidth =', canvas?.parentElement?.offsetWidth);
       if (!canvas) {
         console.warn('[VOGS-CP] Canvas element not found, skipping Three.js init');
         return;
       }
-      // Always attempt init — resize handler will fix dimensions later
+
+      // Pre-check real WebGL availability to avoid noisy Three.js errors
+      if (!this.testWebGL()) {
+        console.warn('[VOGS-CP] WebGL not available — showing CSS fallback');
+        this.webglFailed.set(true);
+        return;
+      }
+
       this.initThree(canvas);
     });
   }
@@ -85,11 +90,27 @@ export class SolutionComponent implements OnDestroy {
     }
   }
 
-  private initThree(canvas: HTMLCanvasElement): void {
-    console.log('[VOGS-CP] initThree: parentWidth =', canvas.parentElement?.offsetWidth,
-      'parentHeight =', canvas.parentElement?.offsetHeight,
-      'WebGL supported =', typeof WebGLRenderingContext !== 'undefined');
+  /** Lightweight WebGL availability test — avoids noisy Three.js errors on broken GPUs. */
+  private testWebGL(): boolean {
+    try {
+      const testCanvas: HTMLCanvasElement | OffscreenCanvas =
+        typeof OffscreenCanvas !== 'undefined'
+          ? new OffscreenCanvas(1, 1)
+          : document.createElement('canvas');
+      const gl =
+        testCanvas.getContext('webgl2') ??
+        testCanvas.getContext('webgl');
+      if (!gl) return false;
+      // Explicitly free the GPU context slot
+      const ext = (gl as WebGLRenderingContext).getExtension('WEBGL_lose_context');
+      if (ext) ext.loseContext();
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
+  private initThree(canvas: HTMLCanvasElement): void {
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({
