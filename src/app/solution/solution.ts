@@ -36,6 +36,7 @@ export class SolutionComponent implements OnDestroy {
   private lastMouseX = 0;
   private vCount = 0;
   private resizeHandler: (() => void) | null = null;
+  private containerResizeObserver: ResizeObserver | null = null;
   private mouseDownHandler: ((e: MouseEvent) => void) | null = null;
   private mouseUpHandler: (() => void) | null = null;
   private mouseMoveHandler: ((e: MouseEvent) => void) | null = null;
@@ -43,8 +44,30 @@ export class SolutionComponent implements OnDestroy {
   constructor() {
     afterNextRender(() => {
       const canvas = this.threeCanvas()?.nativeElement;
-      if (!canvas) return;
-      this.initThree(canvas);
+      console.log('[VOGS-CP] afterNextRender: canvas =', canvas,
+        'parentWidth =', canvas?.parentElement?.offsetWidth);
+      if (!canvas) {
+        console.warn('[VOGS-CP] Canvas element not found, skipping Three.js init');
+        return;
+      }
+      const parentWidth = canvas.parentElement?.offsetWidth ?? 0;
+      if (parentWidth > 0) {
+        this.initThree(canvas);
+      } else {
+        // Container has no width yet — wait for ResizeObserver to fire
+        console.warn('[VOGS-CP] Container width is 0, deferring Three.js init to ResizeObserver');
+        if (canvas.parentElement && typeof ResizeObserver !== 'undefined') {
+          const initObserver = new ResizeObserver((entries) => {
+            const width = entries[0]?.contentRect.width ?? 0;
+            if (width > 0) {
+              initObserver.disconnect();
+              console.log('[VOGS-CP] ResizeObserver triggered init, width =', width);
+              this.initThree(canvas);
+            }
+          });
+          initObserver.observe(canvas.parentElement);
+        }
+      }
     });
   }
 
@@ -52,6 +75,7 @@ export class SolutionComponent implements OnDestroy {
     if (this.animId) cancelAnimationFrame(this.animId);
     if (this.resizeHandler) window.removeEventListener('resize', this.resizeHandler);
     if (this.mouseUpHandler) window.removeEventListener('mouseup', this.mouseUpHandler);
+    this.containerResizeObserver?.disconnect();
     this.renderer?.dispose();
   }
 
@@ -76,7 +100,17 @@ export class SolutionComponent implements OnDestroy {
   }
 
   private initThree(canvas: HTMLCanvasElement): void {
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    console.log('[VOGS-CP] initThree: parentWidth =', canvas.parentElement?.offsetWidth,
+      'parentHeight =', canvas.parentElement?.offsetHeight,
+      'WebGL supported =', typeof WebGLRenderingContext !== 'undefined');
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    } catch (e) {
+      console.error('[VOGS-CP] THREE.WebGLRenderer creation failed:', e);
+      return;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setClearColor(0x141414, 1);
     renderer.shadowMap.enabled = false;
@@ -196,14 +230,22 @@ export class SolutionComponent implements OnDestroy {
 
     // Resize
     const resize = () => {
-      const w = canvas.parentElement?.offsetWidth ?? 900;
+      const w = canvas.parentElement?.offsetWidth || 900;
       const h = w * (9 / 16);
+      console.log('[VOGS-CP] resize: w =', w, 'h =', h);
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     };
     this.resizeHandler = resize;
     window.addEventListener('resize', resize);
+
+    // ResizeObserver for reliable sizing when container changes dimensions
+    if (canvas.parentElement && typeof ResizeObserver !== 'undefined') {
+      this.containerResizeObserver = new ResizeObserver(() => resize());
+      this.containerResizeObserver.observe(canvas.parentElement);
+    }
+
     resize();
 
     // Mouse interaction
